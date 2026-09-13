@@ -5,14 +5,20 @@ import ScrambleIn from './ScrambleIn';
 const VIDEO_URL =
   'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_083515_290e5a10-0b95-41af-a5e2-32b6389baa4d.mp4';
 
+function isTouchDevice() {
+  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+}
+
 export default function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [entranceComplete, setEntranceComplete] = useState(false);
   const [entranceTriggered, setEntranceTriggered] = useState(false);
   const seekingRef = useRef(false);
+  const touchRef = useRef(false);
 
   // Start entrance after 800ms
   useEffect(() => {
+    touchRef.current = isTouchDevice();
     const timer = setTimeout(() => {
       setEntranceTriggered(true);
       setTimeout(() => setEntranceComplete(true), 1000);
@@ -20,42 +26,77 @@ export default function Hero() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Mouse-scrub video
+  // Desktop: mouse-scrub
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || touchRef.current) return;
 
     let lastClientX = 0;
-
     const handleMouseMove = (e: MouseEvent) => {
       if (!video) return;
       const delta = e.clientX - lastClientX;
       lastClientX = e.clientX;
-
       if (seekingRef.current) return;
-
       const newTime = video.currentTime + delta * 0.8 * 0.01;
-      const clamped = Math.max(0, Math.min(newTime, video.duration || 0));
-
       seekingRef.current = true;
-      video.currentTime = clamped;
+      video.currentTime = Math.max(0, Math.min(newTime, video.duration || 0));
     };
-
-    const handleSeeked = () => {
-      seekingRef.current = false;
-    };
-
+    const handleSeeked = () => { seekingRef.current = false; };
     video.addEventListener('seeked', handleSeeked);
     window.addEventListener('mousemove', handleMouseMove);
-
     return () => {
       video.removeEventListener('seeked', handleSeeked);
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
 
+  // Mobile: forward-reverse ping-pong loop
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !touchRef.current) return;
+
+    let raf = 0;
+    let goingForward = true;
+    const SPEED = 0.006;
+
+    // Start playback first, then control position
+    video.muted = true;
+    video.loop = false;
+    video.play().catch(() => {});
+
+    const pingPong = () => {
+      if (!video || !video.duration) { raf = requestAnimationFrame(pingPong); return; }
+
+      if (goingForward) {
+        video.currentTime += SPEED;
+        if (video.currentTime >= video.duration) {
+          video.currentTime = video.duration;
+          goingForward = false;
+        }
+      } else {
+        video.currentTime -= SPEED;
+        if (video.currentTime <= 0) {
+          video.currentTime = 0;
+          goingForward = true;
+        }
+      }
+
+      raf = requestAnimationFrame(pingPong);
+    };
+
+    // Wait a moment for video to start playing, then begin control
+    setTimeout(() => {
+      raf = requestAnimationFrame(pingPong);
+    }, 500);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      video.pause();
+    };
+  }, []);
+
   return (
-    <section className="relative h-screen h-[100dvh] overflow-hidden">
+    <section className="relative h-screen h-[100dvh] overflow-hidden bg-black">
       {/* Background video */}
       <video
         ref={videoRef}
@@ -99,12 +140,9 @@ export default function Hero() {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col h-full px-4 sm:px-6 md:px-8 pt-20 sm:pt-24 pb-8 sm:pb-12">
-        {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Bottom row */}
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          {/* Left column */}
           <motion.div
             className="flex flex-col gap-4"
             initial={{ opacity: 0 }}
@@ -120,17 +158,12 @@ export default function Hero() {
               className="max-w-sm text-[13px] sm:text-[15px] text-white/60 leading-relaxed"
               initial={{ y: 25, opacity: 0 }}
               animate={entranceComplete ? { y: 0, opacity: 1 } : {}}
-              transition={{
-                duration: 0.9,
-                ease: [0.215, 0.61, 0.355, 1],
-                delay: 0.2,
-              }}
+              transition={{ duration: 0.9, ease: [0.215, 0.61, 0.355, 1], delay: 0.2 }}
             >
               A comprehensive cultural enterprise driven by music creation, game development, and film production. We focus on IP incubation, content creation, and full-chain operations — connecting every story across every medium.
             </motion.p>
           </motion.div>
 
-          {/* Right h1 */}
           <motion.div
             className="text-left md:text-right"
             initial={{ opacity: 0 }}
