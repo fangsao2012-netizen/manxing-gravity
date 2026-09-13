@@ -50,7 +50,7 @@ export default function Navbar({ entranceComplete }: NavbarProps) {
       <div className="hidden sm:flex items-center">
         <motion.div
           className="h-12 rounded-[14px] bg-white/15 backdrop-blur-md flex items-center overflow-hidden"
-          animate={{ width: menuOpen ? 360 : 48 }}
+          animate={{ width: menuOpen ? 500 : 48 }}
           transition={{ type: 'spring', stiffness: 350, damping: 28 }}
         >
           {/* Hamburger button */}
@@ -98,10 +98,18 @@ export default function Navbar({ entranceComplete }: NavbarProps) {
                   onClick={() => scrollTo(window.innerHeight * 3)}
                   onMouseEnter={() => setHoveredLink('philosophy')}
                   onMouseLeave={() => setHoveredLink(null)}
-                  className="px-3 py-1.5 text-[16px] font-normal text-white/85 hover:text-white transition-colors"
+                  className="px-3 py-1.5 text-[16px] font-normal text-white/85 hover:text-white transition-colors whitespace-nowrap"
                 >
                   <ScrambleText text="Philosophy" isHovered={hoveredLink === 'philosophy'} />
                 </button>
+                <a
+                  href="/dream-factory/download/"
+                  onMouseEnter={() => setHoveredLink('factory')}
+                  onMouseLeave={() => setHoveredLink(null)}
+                  className="px-3 py-1.5 text-[16px] font-normal text-white/85 hover:text-white transition-colors whitespace-nowrap"
+                >
+                  <ScrambleText text="Dream Factory" isHovered={hoveredLink === 'factory'} />
+                </a>
               </motion.div>
             )}
           </AnimatePresence>
@@ -168,22 +176,22 @@ export default function Navbar({ entranceComplete }: NavbarProps) {
               >
                 <button
                   onClick={() => scrollTo(window.innerHeight)}
-                  className="px-2 py-1 text-[13px] text-white/85"
+                  className="px-1.5 py-1 text-[12px] text-white/85 whitespace-nowrap"
                 >
                   About
                 </button>
                 <button
                   onClick={() => scrollTo(window.innerHeight * 2)}
-                  className="px-2 py-1 text-[13px] text-white/85"
+                  className="px-1.5 py-1 text-[12px] text-white/85 whitespace-nowrap"
                 >
                   Studio
                 </button>
-                <button
-                  onClick={scrollToBottom}
-                  className="px-2 py-1 text-[13px] text-white/85"
+                <a
+                  href="/dream-factory/download/"
+                  className="px-1.5 py-1 text-[12px] text-white/85 whitespace-nowrap"
                 >
-                  Contact
-                </button>
+                  Dream Factory
+                </a>
                 <div className="flex-1" />
                 <motion.button
                   onClick={scrollToBottom}

@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+_deploy_key
+_deploy_key.pub
+site.tar.gz
