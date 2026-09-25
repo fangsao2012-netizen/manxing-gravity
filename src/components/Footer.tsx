@@ -45,7 +45,7 @@ export default function Footer() {
           <div className="mt-12">
             <div className="flex flex-col gap-1 mb-4">
               <a
-                href="http://www.manxinggravity.com"
+                href="https://www.manxinggravity.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white/30 text-[12px] hover:text-white/60 transition-colors"
