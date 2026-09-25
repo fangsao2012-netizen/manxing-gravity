@@ -1,0 +1,6 @@
+# Search-console verification files are checked byte-for-byte by the
+# engines that issue them, so keep git from rewriting their line
+# endings. Works around the Windows checkout's core.autocrlf=true.
+public/BingSiteAuth.xml -text
+public/baidu_verify_*.html -text
+public/google*.html -text
